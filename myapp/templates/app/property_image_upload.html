@@ -1,0 +1,103 @@
+{% extends 'app/base.html' %}
+
+{% block title %}Upload Images - The Property Guru{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2 class="card-title">Upload Images for Your Property</h2>
+
+    <div class="property-preview" style="margin-bottom: 30px; display: flex; gap: 20px; align-items: center;">
+        <div class="property-preview-image" style="width: 100px; height: 100px; border-radius: 8px; overflow: hidden; background-color: #eee; display: flex; align-items: center; justify-content: center;">
+            {% if property.images.first %}
+                <img src="{{ property.images.first.image.url }}" alt="{{ property.title }}" style="width: 100%; height: 100%; object-fit: cover;">
+            {% else %}
+                <span style="color: #999;">No Image</span>
+            {% endif %}
+        </div>
+        <div class="property-preview-details">
+            <h3 style="margin-top: 0; margin-bottom: 5px;">{{ property.title }}</h3>
+            <p style="margin: 0; color: #666;">{{ property.address }}, {{ property.city }}</p>
+            <p style="margin: 5px 0 0 0;">
+                <span style="display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 500; background-color: #e3f2fd; color: #1565c0; margin-right: 5px;">{{ property.get_property_type_display }}</span>
+                <span style="display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 500; background-color: #e8f5e9; color: #2e7d32;">{{ property.get_purpose_display }}</span>
+            </p>
+        </div>
+    </div>
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="id_image">Upload New Image:</label>
+            <input type="file" name="image" id="id_image" accept="image/*" required>
+            {% if form.image.errors %}
+                <ul class="errorlist">
+                    {% for error in form.image.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+
+        <div class="form-group">
+            <label>
+                <input type="checkbox" name="is_primary" id="id_is_primary">
+                Set as primary image
+            </label>
+            <p style="margin-top: 5px; color: #666; font-size: 14px;">The primary image will be displayed as the main image for this property.</p>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Upload Image</button>
+    </form>
+
+    {% if property.images.all %}
+        <h3 style="margin-top: 30px;">Uploaded Images</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; margin-top: 20px;">
+            {% for image in property.images.all %}
+                <div style="position: relative; height: 200px; border-radius: 8px; overflow: hidden; border: 1px solid #ddd;">
+                    <img src="{{ image.image.url }}" alt="Property Image" style="width: 100%; height: 100%; object-fit: cover;">
+
+                    <div style="position: absolute; top: 0; right: 0; display: flex; gap: 5px; padding: 5px; background-color: rgba(0, 0, 0, 0.5);">
+                        {% if not image.is_primary %}
+                            <form method="post" action="{% url 'set_primary_image' image.id %}">
+                                {% csrf_token %}
+                                <button type="submit" style="background: none; border: none; color: white; cursor: pointer; padding: 5px; display: flex; align-items: center; justify-content: center; border-radius: 4px;" title="Set as primary">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
+                                    </svg>
+                                </button>
+                            </form>
+                        {% endif %}
+
+                        <form method="post" action="{% url 'delete_property_image' image.id %}">
+                            {% csrf_token %}
+                            <button type="submit" style="background: none; border: none; color: white; cursor: pointer; padding: 5px; display: flex; align-items: center; justify-content: center; border-radius: 4px;" title="Delete image">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="3 6 5 6 21 6"></polyline>
+                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                    <line x1="10" y1="11" x2="10" y2="17"></line>
+                                    <line x1="14" y1="11" x2="14" y2="17"></line>
+                                </svg>
+                            </button>
+                        </form>
+                    </div>
+
+                    {% if image.is_primary %}
+                        <div style="position: absolute; bottom: 0; left: 0; background-color: #4caf50; color: white; padding: 5px 10px; font-size: 12px; font-weight: 500;">
+                            Primary
+                        </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div style="text-align: center; margin: 30px 0; color: #666;">
+            <p>No images uploaded for this property yet.</p>
+        </div>
+    {% endif %}
+
+    <div style="margin-top: 30px; display: flex; justify-content: space-between;">
+        <a href="{% url 'manage_properties' %}" class="btn btn-secondary">Back to Manage Properties</a>
+        <a href="{% url 'property_detail' property.id %}" class="btn btn-primary">View Property</a>
+    </div>
+</div>
+{% endblock %}

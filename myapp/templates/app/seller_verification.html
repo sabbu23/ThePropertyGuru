@@ -1,0 +1,133 @@
+{% extends 'app/base.html' %}
+
+{% block title %}{% if is_resubmission %}Resubmit Verification{% else %}Seller Verification{% endif %} - The Property Guru{% endblock %}
+
+{% block extra_css %}
+<style>
+    .verification-form {
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    
+    .info-text {
+        text-align: center;
+        margin-bottom: 30px;
+        color: #555;
+        font-size: 16px;
+        line-height: 1.5;
+    }
+    
+    .help-text {
+        font-size: 14px;
+        color: #666;
+        margin-top: 5px;
+        display: block;
+    }
+    
+    .verification-status {
+        margin-bottom: 20px;
+        padding: 15px;
+        border-radius: 5px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .status-pending {
+        background-color: #fff8e1;
+        border: 1px solid #ffb74d;
+    }
+    
+    .status-rejected {
+        background-color: #ffebee;
+        border: 1px solid #e57373;
+    }
+    
+    .rejection-message {
+        background-color: #fff8e1;
+        border-left: 4px solid #ff8f00;
+        padding: 15px;
+        margin-bottom: 20px;
+        border-radius: 0 4px 4px 0;
+    }
+    
+    .rejection-message h3 {
+        margin-top: 0;
+        color: #ff8f00;
+        font-size: 18px;
+    }
+    
+    .rejection-message p {
+        margin-bottom: 0;
+        color: #333;
+        line-height: 1.5;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2 class="card-title">{% if is_resubmission %}Resubmit Verification{% else %}Seller Verification{% endif %}</h2>
+
+    {% if verification_status == 'pending' %}
+        <div class="verification-status status-pending">
+            <p style="margin: 0;">Your verification is currently pending review by our admin team. We'll notify you once it's approved.</p>
+        </div>
+    {% elif verification_status == 'rejected' %}
+        <div class="verification-status status-rejected">
+            <p style="margin: 0;">Your previous verification was rejected. Please review the reason below and resubmit.</p>
+        </div>
+    {% endif %}
+
+    {% if rejection_message %}
+    <div class="rejection-message">
+        <h3>Your previous submission was rejected</h3>
+        <p>{{ rejection_message }}</p>
+        <p>Please address the issues mentioned above and resubmit your verification documents.</p>
+    </div>
+    {% endif %}
+
+    <div class="info-text">
+        <p>To ensure the quality and trust of our platform, we require all sellers to complete a verification process. Please provide the following information to verify your identity.</p>
+        <p>Your account will be reviewed by our admin team after submission.</p>
+    </div>
+
+    <div class="verification-form">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label for="id_profile_picture">Profile Picture:</label>
+                <input type="file" id="id_profile_picture" name="profile_picture" accept="image/*" {% if not is_resubmission %}required{% endif %}>
+                {% if form.profile_picture.errors %}
+                <ul class="errorlist">
+                    {% for error in form.profile_picture.errors %}
+                    <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+                <span class="help-text">Please upload a clear photo of yourself.</span>
+            </div>
+
+            <div class="form-group">
+                <label for="id_identity_proof">Identity Proof:</label>
+                <input type="file" id="id_identity_proof" name="identity_proof" accept="image/*" {% if not is_resubmission %}required{% endif %}>
+                {% if form.identity_proof.errors %}
+                <ul class="errorlist">
+                    {% for error in form.identity_proof.errors %}
+                    <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+                <span class="help-text">Please upload a government-issued ID (passport, driver's license, citizenship card, etc.)</span>
+            </div>
+
+            <button type="submit" class="btn btn-primary">{% if is_resubmission %}Resubmit Verification{% else %}Submit Verification{% endif %}</button>
+        </form>
+    </div>
+
+    <div style="text-align: center; margin-top: 20px;">
+        <a href="{% url 'home' %}" class="btn btn-secondary">Back to Home</a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,163 @@
+{% extends 'app/base.html' %}
+
+{% block title %}Edit Property - The Property Guru{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2 class="card-title">Edit Property</h2>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label for="id_title">Title:</label>
+            <input type="text" name="title" id="id_title" value="{{ property.title }}" required>
+            {% if form.title.errors %}
+                <ul class="errorlist">
+                    {% for error in form.title.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+
+        <div class="form-group">
+            <label for="id_property_type">Property Type:</label>
+            <select name="property_type" id="id_property_type" required>
+                <option value="">Select property type</option>
+                {% for value, label in property_types %}
+                    <option value="{{ value }}" {% if property.property_type == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+            {% if form.property_type.errors %}
+                <ul class="errorlist">
+                    {% for error in form.property_type.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+
+        <div class="form-group">
+            <label for="id_purpose">Purpose:</label>
+            <select name="purpose" id="id_purpose" required>
+                <option value="">Select purpose</option>
+                {% for value, label in property_purposes %}
+                    <option value="{{ value }}" {% if property.purpose == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+            {% if form.purpose.errors %}
+                <ul class="errorlist">
+                    {% for error in form.purpose.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+
+        <div class="form-group">
+            <label for="id_price">Price (NPR):</label>
+            <input type="number" name="price" id="id_price" step="0.01" min="0" value="{{ property.price }}" required>
+            {% if form.price.errors %}
+                <ul class="errorlist">
+                    {% for error in form.price.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+
+        <div class="form-group">
+            <label for="id_area_size">Area Size (sq. ft):</label>
+            <input type="number" name="area_size" id="id_area_size" step="0.01" min="0" value="{{ property.area_size }}" required>
+            {% if form.area_size.errors %}
+                <ul class="errorlist">
+                    {% for error in form.area_size.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+
+        <div class="form-group">
+            <label for="id_bedrooms">Bedrooms:</label>
+            <input type="number" name="bedrooms" id="id_bedrooms" min="0" value="{{ property.bedrooms }}" required>
+            {% if form.bedrooms.errors %}
+                <ul class="errorlist">
+                    {% for error in form.bedrooms.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+
+        <div class="form-group">
+            <label for="id_bathrooms">Bathrooms:</label>
+            <input type="number" name="bathrooms" id="id_bathrooms" min="0" value="{{ property.bathrooms }}" required>
+            {% if form.bathrooms.errors %}
+                <ul class="errorlist">
+                    {% for error in form.bathrooms.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+
+        <div class="form-group">
+            <label for="id_address">Address:</label>
+            <textarea name="address" id="id_address" rows="3" required>{{ property.address }}</textarea>
+            {% if form.address.errors %}
+                <ul class="errorlist">
+                    {% for error in form.address.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+
+        <div class="form-group">
+            <label for="id_city">City:</label>
+            <select name="city" id="id_city" required>
+                <option value="">Select a city</option>
+                <option value="kathmandu" {% if property.city == 'kathmandu' %}selected{% endif %}>Kathmandu</option>
+                <option value="pokhara" {% if property.city == 'pokhara' %}selected{% endif %}>Pokhara</option>
+                <option value="lalitpur" {% if property.city == 'lalitpur' %}selected{% endif %}>Lalitpur</option>
+                <option value="bhaktapur" {% if property.city == 'bhaktapur' %}selected{% endif %}>Bhaktapur</option>
+            </select>
+            {% if form.city.errors %}
+                <ul class="errorlist">
+                    {% for error in form.city.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+
+        <div class="form-group">
+            <label for="id_description">Description:</label>
+            <textarea name="description" id="id_description" rows="6" required>{{ property.description }}</textarea>
+            {% if form.description.errors %}
+                <ul class="errorlist">
+                    {% for error in form.description.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+
+        <div class="form-group">
+            <label for="id_is_active">
+                <input type="checkbox" name="is_active" id="id_is_active" {% if property.is_active %}checked{% endif %}>
+                Active
+            </label>
+            <small style="display: block; margin-top: 5px; color: #666;">Inactive properties will not be visible to buyers or renters.</small>
+        </div>
+
+        <div style="display: flex; gap: 10px; margin-top: 20px;">
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+            <a href="{% url 'upload_property_image' property.id %}" class="btn btn-secondary">Manage Images</a>
+            <a href="{% url 'manage_properties' %}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

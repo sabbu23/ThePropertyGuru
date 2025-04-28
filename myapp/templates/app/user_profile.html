@@ -1,0 +1,261 @@
+{% extends 'app/base.html' %}
+
+{% block title %}{{ profile_user.username }}'s Profile - The Property Guru{% endblock %}
+
+{% block extra_css %}
+<style>
+    .profile-container {
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+    
+    .profile-header {
+        display: flex;
+        gap: 30px;
+        margin-bottom: 30px;
+        padding: 30px;
+        background-color: white;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+    
+    .profile-avatar {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        background-color: var(--secondary-color);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        font-size: 48px;
+        flex-shrink: 0;
+    }
+    
+    .profile-info {
+        flex: 1;
+    }
+    
+    .profile-name {
+        font-size: 28px;
+        font-weight: 600;
+        margin-bottom: 5px;
+        color: #333;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .verified-badge {
+        display: inline-flex;
+        align-items: center;
+        background-color: #e8f5e9;
+        color: #2e7d32;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 14px;
+        font-weight: 500;
+        gap: 5px;
+    }
+    
+    .profile-role {
+        color: #666;
+        font-size: 16px;
+        margin-bottom: 15px;
+    }
+    
+    .profile-stats {
+        display: flex;
+        gap: 20px;
+        margin-top: 20px;
+    }
+    
+    .stat-item {
+        padding: 10px 15px;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        text-align: center;
+    }
+    
+    .stat-value {
+        font-size: 20px;
+        font-weight: 600;
+        color: var(--primary-color);
+    }
+    
+    .stat-label {
+        font-size: 14px;
+        color: #666;
+    }
+    
+    .section-title {
+        font-size: 22px;
+        margin-bottom: 20px;
+        font-weight: 600;
+        color: #333;
+        border-bottom: 2px solid #eee;
+        padding-bottom: 10px;
+    }
+    
+    .property-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+    
+    .contact-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 20px;
+        background-color: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-size: 15px;
+        font-weight: 500;
+        text-decoration: none;
+        transition: background-color 0.3s;
+        margin-top: 15px;
+    }
+    
+    .contact-btn:hover {
+        background-color: #b3211c;
+        color: white;
+    }
+    
+    .empty-properties {
+        text-align: center;
+        padding: 40px 0;
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        margin-bottom: 30px;
+    }
+    
+    .empty-properties i {
+        font-size: 40px;
+        color: #ddd;
+        margin-bottom: 15px;
+    }
+    
+    @media (max-width: 768px) {
+        .profile-header {
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        
+        .profile-stats {
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="profile-container">
+    <div class="profile-header">
+        <div class="profile-avatar">
+            {% if seller_verification and seller_verification.profile_picture %}
+                <img src="{{ seller_verification.profile_picture.url }}" alt="{{ profile_user.username }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+            {% else %}
+                {{ profile_user.username|first|upper }}
+            {% endif %}
+        </div>
+        
+        <div class="profile-info">
+            <h1 class="profile-name">
+                {{ profile_user.username }}
+                {% if is_verified_seller %}
+                    <span class="verified-badge">
+                        <i class="fas fa-check-circle"></i> Verified Seller
+                    </span>
+                {% endif %}
+            </h1>
+            
+            <div class="profile-role">
+                {% if profile_user.profile.role == 'seller' %}
+                    <i class="fas fa-store"></i> Property Seller
+                {% elif profile_user.profile.role == 'buyer' %}
+                    <i class="fas fa-user"></i> Property Buyer
+                {% elif profile_user.profile.role == 'admin' %}
+                    <i class="fas fa-user-shield"></i> Administrator
+                {% endif %}
+            </div>
+            
+            <div style="margin-top: 15px; color: #666;">
+                <p><i class="fas fa-user-circle"></i> Member since {{ profile_user.date_joined|date:"F Y" }}</p>
+                {% if profile_user.profile.phone %}
+                    <p><i class="fas fa-phone"></i> {{ profile_user.profile.phone }}</p>
+                {% endif %}
+                {% if profile_user.email %}
+                    <p><i class="fas fa-envelope"></i> {{ profile_user.email }}</p>
+                {% endif %}
+            </div>
+            
+            {% if profile_user.profile.role == 'seller' %}
+                <div class="profile-stats">
+                    <div class="stat-item">
+                        <div class="stat-value">{{ properties.count }}</div>
+                        <div class="stat-label">Listed Properties</div>
+                    </div>
+                </div>
+            {% endif %}
+            
+            {% if profile_user != request.user %}
+                <a href="{% url 'start_conversation' profile_user.id %}" class="contact-btn">
+                    <i class="fas fa-comments"></i> Send Message
+                </a>
+            {% endif %}
+        </div>
+    </div>
+    
+    {% if profile_user.profile.role == 'seller' %}
+        <h2 class="section-title">{{ profile_user.username }}'s Properties</h2>
+        
+        {% if properties %}
+            <div class="property-grid">
+                {% for property in properties %}
+                    <div class="property-card">
+                        <div class="property-image">
+                            {% if property.get_primary_image %}
+                                <img src="{{ property.get_primary_image.image.url }}" alt="{{ property.title }}">
+                            {% else %}
+                                <div style="width: 100%; height: 100%; background-color: #eee; display: flex; align-items: center; justify-content: center;">
+                                    <span style="color: #999;"><i class="fas fa-home fa-2x"></i></span>
+                                </div>
+                            {% endif %}
+                            <div class="property-status-badge status-{{ property.status }}">
+                                {{ property.get_status_display }}
+                            </div>
+                            <div class="property-price">NPR {{ property.price|floatformat:0 }}{% if property.purpose == 'rent' %}/month{% endif %}</div>
+                        </div>
+                        <div class="property-details">
+                            <h3 class="property-title">{{ property.title }}</h3>
+                            <div class="property-location">
+                                <i class="fas fa-map-marker-alt"></i> {{ property.address }}, {{ property.city }}
+                            </div>
+                            <div class="property-features">
+                                <span><i class="fas fa-ruler-combined"></i> {{ property.area_size|floatformat:0 }} sq ft</span>
+                                <span><i class="fas fa-bed"></i> {{ property.bedrooms }} bed</span>
+                                <span><i class="fas fa-bath"></i> {{ property.bathrooms }} bath</span>
+                            </div>
+                            <div class="property-actions">
+                                <a href="{% url 'property_detail' property.id %}" class="btn btn-primary" style="font-size: 14px; padding: 8px 15px;">View Details</a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-properties">
+                <i class="fas fa-home"></i>
+                <p>{{ profile_user.username }} doesn't have any properties listed at the moment.</p>
+            </div>
+        {% endif %}
+    {% endif %}
+</div>
+{% endblock %}

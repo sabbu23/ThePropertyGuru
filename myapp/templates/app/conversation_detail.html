@@ -1,0 +1,405 @@
+{% extends 'app/base.html' %}
+
+{% block title %}Conversation - The Property Guru{% endblock %}
+
+{% block extra_css %}
+<style>
+    .message-container {
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+    
+    .conversation-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .conversation-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 22px;
+        font-weight: 600;
+        color: #333;
+        margin: 0;
+    }
+    
+    .conversation-title i {
+        color: var(--primary-color);
+    }
+    
+    .conversation-actions {
+        display: flex;
+        gap: 10px;
+    }
+    
+    .btn-back {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 15px;
+        background-color: #f5f5f5;
+        color: #333;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 500;
+        text-decoration: none;
+        transition: background-color 0.3s;
+    }
+    
+    .btn-back:hover {
+        background-color: #eee;
+    }
+    
+    .property-card {
+        display: flex;
+        background-color: #f9f9f9;
+        border-radius: 8px;
+        overflow: hidden;
+        margin-bottom: 30px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    
+    .property-image {
+        width: 120px;
+        height: 90px;
+        flex-shrink: 0;
+        overflow: hidden;
+    }
+    
+    .property-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .property-info {
+        padding: 15px;
+        flex-grow: 1;
+    }
+    
+    .property-name {
+        font-size: 18px;
+        font-weight: 600;
+        margin: 0 0 5px 0;
+        color: #333;
+    }
+    
+    .property-location {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        color: #666;
+        font-size: 14px;
+        margin-bottom: 10px;
+    }
+    
+    .property-link {
+        margin-left: auto;
+        padding: 15px;
+        display: flex;
+        align-items: center;
+    }
+    
+    .btn-view-property {
+        padding: 8px 15px;
+        background-color: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 500;
+        text-decoration: none;
+        transition: background-color 0.3s;
+    }
+    
+    .btn-view-property:hover {
+        background-color: #b3211c;
+        color: white;
+    }
+    
+    .messages-list {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        margin-bottom: 30px;
+        padding: 20px;
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        max-height: 500px;
+        overflow-y: auto;
+    }
+    
+    .message-bubble {
+        display: flex;
+        max-width: 80%;
+    }
+    
+    .message-bubble.sent {
+        align-self: flex-end;
+        flex-direction: row-reverse;
+    }
+    
+    .message-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: var(--secondary-color);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        font-size: 16px;
+        margin: 0 10px;
+    }
+    
+    .message-content {
+        background-color: #f1f1f1;
+        padding: 15px;
+        border-radius: 8px;
+        position: relative;
+    }
+    
+    .message-bubble.sent .message-content {
+        background-color: #e3f2fd;
+    }
+    
+    .message-text {
+        margin: 0;
+        color: #333;
+        font-size: 15px;
+        line-height: 1.5;
+        word-break: break-word;
+    }
+    
+    .message-time {
+        display: block;
+        font-size: 12px;
+        color: #888;
+        margin-top: 5px;
+        text-align: right;
+    }
+    
+    .message-form {
+        display: flex;
+        gap: 10px;
+        margin-top: 20px;
+    }
+    
+    .message-input {
+        flex-grow: 1;
+        padding: 15px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-size: 15px;
+        resize: none;
+        transition: border-color 0.3s;
+    }
+    
+    .message-input:focus {
+        border-color: var(--primary-color);
+        outline: none;
+    }
+    
+    .btn-send {
+        padding: 0 20px;
+        background-color: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 15px;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+    
+    .btn-send:hover {
+        background-color: #b3211c;
+    }
+    
+    .empty-conversation {
+        text-align: center;
+        padding: 40px 0;
+        color: #666;
+    }
+    
+    .empty-conversation i {
+        font-size: 40px;
+        color: #ddd;
+        margin-bottom: 15px;
+    }
+    
+    .user-info-wrapper {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-top: 10px;
+    }
+    
+    .view-profile-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 10px 16px;
+        background-color: var(--secondary-color);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 500;
+        text-decoration: none;
+        transition: background-color 0.3s;
+        width: fit-content;
+    }
+    
+    .view-profile-btn:hover {
+        background-color: #233140;
+        color: white;
+    }
+    
+    @media (max-width: 768px) {
+        .property-card {
+            flex-direction: column;
+        }
+        
+        .property-image {
+            width: 100%;
+            height: 180px;
+        }
+        
+        .property-link {
+            padding: 0 15px 15px;
+        }
+        
+        .message-bubble {
+            max-width: 90%;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="message-container">
+    <div class="conversation-header">
+        <h1 class="conversation-title">
+            <i class="fas fa-comments"></i>
+            {% if conversation.property %}
+                Conversation about {{ conversation.property.title }}
+            {% else %}
+                Conversation with {{ other_user.username }}
+            {% endif %}
+        </h1>
+        
+        <div class="conversation-actions">
+            <a href="{% url 'inbox' %}" class="btn-back">
+                <i class="fas fa-arrow-left"></i> Back to Inbox
+            </a>
+        </div>
+    </div>
+    
+    {% if conversation.property %}
+        <div class="property-card">
+            <div class="property-image">
+                {% if conversation.property.get_primary_image %}
+                    <img src="{{ conversation.property.get_primary_image.image.url }}" alt="{{ conversation.property.title }}">
+                {% else %}
+                    <div style="width: 100%; height: 100%; background-color: #eee; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-home" style="color: #aaa;"></i>
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div class="property-info">
+                <h3 class="property-name">{{ conversation.property.title }}</h3>
+                <div class="property-location">
+                    <i class="fas fa-map-marker-alt"></i> {{ conversation.property.address }}, {{ conversation.property.get_city_display }}
+                </div>
+                <div style="display: flex; gap: 15px; font-size: 14px; color: #666;">
+                    <span><i class="fas fa-ruler-combined"></i> {{ conversation.property.area_size|floatformat:0 }} sq ft</span>
+                    <span><i class="fas fa-bed"></i> {{ conversation.property.bedrooms }} bed</span>
+                    <span><i class="fas fa-bath"></i> {{ conversation.property.bathrooms }} bath</span>
+                </div>
+                
+                <div class="user-info-wrapper">
+                    <div style="font-size: 15px; color: #666;">
+                        <strong>Chatting with:</strong> {{ other_user.username }}
+                        {% if other_user.profile.role == 'seller' and other_user.profile.is_verified %}
+                            <span style="background-color: #e8f5e9; color: #2e7d32; padding: 3px 8px; border-radius: 10px; font-size: 12px; margin-left: 5px;">
+                                <i class="fas fa-check-circle"></i> Verified Seller
+                            </span>
+                        {% endif %}
+                    </div>
+                    
+                    <a href="{% url 'user_profile' other_user.id %}" class="view-profile-btn">
+                        <i class="fas fa-user"></i> View Profile
+                    </a>
+                </div>
+            </div>
+            
+            <div class="property-link">
+                <a href="{% url 'property_detail' conversation.property.id %}" class="btn-view-property">
+                    View Property
+                </a>
+            </div>
+        </div>
+    {% endif %}
+    
+    <div class="messages-list" id="messagesContainer">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="message-bubble {% if message.sender == user %}sent{% endif %}">
+                    <div class="message-avatar">{{ message.sender.username|first|upper }}</div>
+                    <div class="message-content">
+                        <p class="message-text">{{ message.content }}</p>
+                        <span class="message-time">{{ message.timestamp|date:"M d, Y, g:i a" }}</span>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-conversation">
+                <i class="fas fa-comments"></i>
+                <p>No messages yet. Start a conversation with {{ other_user.username }}.</p>
+            </div>
+        {% endif %}
+    </div>
+    
+    <form method="post" class="message-form" id="messageForm">
+        {% csrf_token %}
+        <textarea name="content" placeholder="Type your message..." class="message-input" required></textarea>
+        <button type="submit" class="btn-send">
+            <i class="fas fa-paper-plane"></i> Send
+        </button>
+    </form>
+</div>
+
+<script>
+    // Scroll to the bottom of the messages container
+    function scrollToBottom() {
+        const container = document.getElementById('messagesContainer');
+        container.scrollTop = container.scrollHeight;
+    }
+    
+    // Scroll to bottom when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        scrollToBottom();
+    });
+    
+    // Auto-resize textarea
+    const textarea = document.querySelector('.message-input');
+    textarea.addEventListener('input', function() {
+        this.style.height = 'auto';
+        this.style.height = (this.scrollHeight) + 'px';
+    });
+</script>
+{% endblock %}

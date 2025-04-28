@@ -1,0 +1,20 @@
+{% extends 'app/base.html' %}
+
+{% block title %}Delete Property - The Property Guru{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2 class="card-title">Delete Property</h2>
+
+    <p>Are you sure you want to delete the property "{{ property.title }}"?</p>
+    <p>This action cannot be undone.</p>
+
+    <form method="post">
+        {% csrf_token %}
+        <div style="display: flex; gap: 10px; margin-top: 20px;">
+            <button type="submit" class="btn btn-danger">Yes, Delete Property</button>
+            <a href="{% url 'manage_properties' %}" class="btn btn-secondary">No, Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

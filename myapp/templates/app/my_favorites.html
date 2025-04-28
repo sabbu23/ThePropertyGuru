@@ -1,0 +1,88 @@
+{% extends 'app/base.html' %}
+
+{% block title %}My Favorites - The Property Guru{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2 class="card-title">My Favorites</h2>
+
+    {% if properties %}
+        <div class="grid">
+            {% for property in properties %}
+                <div class="property-card">
+                    <div class="property-image">
+                        {% if property.get_primary_image %}
+                            <img src="{{ property.get_primary_image.image.url }}" alt="{{ property.title }}">
+                        {% else %}
+                            <div style="width: 100%; height: 100%; background-color: #eee; display: flex; align-items: center; justify-content: center;">
+                                <span style="color: #999;">No Image</span>
+                            </div>
+                        {% endif %}
+                        <div class="property-price">NPR {{ property.price|floatformat:0 }}{% if property.purpose == 'rent' %}/month{% endif %}</div>
+                        <div class="property-status-badge status-{{ property.status }}">
+                            {{ property.get_status_display }}
+                        </div>
+                    </div>
+                    <div class="property-details">
+                        <h3 class="property-title">{{ property.title }}</h3>
+                        <div class="property-location">{{ property.address }}, {{ property.city }}</div>
+                        <div class="property-features">
+                            <span>{{ property.area_size|floatformat:0 }} sq ft</span>
+                            <span>{{ property.bedrooms }} bed</span>
+                            <span>{{ property.bathrooms }} bath</span>
+                        </div>
+                        <div class="property-actions">
+                            <a href="{% url 'property_detail' property.id %}" class="btn btn-primary" style="font-size: 14px; padding: 6px 12px;">View Details</a>
+                            <form method="post" action="{% url 'toggle_favorite' property.id %}">
+                                {% csrf_token %}
+                                <button type="submit" class="favorite-btn active">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                                    </svg>
+                                    <span>Remove</span>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        {% if is_paginated %}
+            <div style="display: flex; justify-content: center; margin-top: 30px;">
+                <div style="display: flex; gap: 5px;">
+                    {% if page_obj.has_previous %}
+                        <a href="?page=1" class="btn btn-secondary">First</a>
+                        <a href="?page={{ page_obj.previous_page_number }}" class="btn btn-secondary">Previous</a>
+                    {% endif %}
+
+                    <span style="padding: 8px 15px; border-radius: 4px; background-color: #f5f5f5;">
+                        Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                    </span>
+
+                    {% if page_obj.has_next %}
+                        <a href="?page={{ page_obj.next_page_number }}" class="btn btn-secondary">Next</a>
+                        <a href="?page={{ page_obj.paginator.num_pages }}" class="btn btn-secondary">Last</a>
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
+    {% else %}
+        <div style="text-align: center; padding: 50px 0;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 20px;">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+            </svg>
+            <h3>You don't have any favorite properties yet.</h3>
+            <p>Browse properties and click the heart icon to add them to your favorites!</p>
+            <div style="margin-top: 20px; display: flex; gap: 10px; justify-content: center;">
+                <a href="{% url 'buy_properties' %}" class="btn btn-primary">Browse Properties for Sale</a>
+                <a href="{% url 'rent_properties' %}" class="btn btn-secondary">Browse Properties for Rent</a>
+            </div>
+        </div>
+    {% endif %}
+
+    <div style="margin-top: 20px; text-align: left;">
+        <a href="{% url 'home' %}" class="btn btn-secondary">Back to Home</a>
+    </div>
+</div>
+{% endblock %}

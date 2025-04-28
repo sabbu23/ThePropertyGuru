@@ -1,0 +1,322 @@
+{% extends 'app/base.html' %}
+
+{% block title %}Add Property - The Property Guru{% endblock %}
+
+{% block extra_css %}
+<style>
+    .property-form-container {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    
+    .form-header {
+        margin-bottom: 30px;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 15px;
+    }
+    
+    .form-title {
+        font-size: 28px;
+        font-weight: 600;
+        margin: 0;
+        color: #333;
+    }
+    
+    .form-subtitle {
+        color: #666;
+        margin-top: 5px;
+    }
+    
+    .form-group {
+        margin-bottom: 25px;
+    }
+    
+    .form-label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+        color: #333;
+        font-size: 16px;
+    }
+    
+    .form-control {
+        width: 100%;
+        padding: 12px 15px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-size: 16px;
+        transition: border-color 0.3s;
+    }
+    
+    .form-control:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(200, 48, 42, 0.1);
+        outline: none;
+    }
+    
+    .property-form-card {
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 2px 15px rgba(0,0,0,0.05);
+        overflow: hidden;
+    }
+    
+    .form-section {
+        padding: 30px;
+    }
+    
+    .form-section-title {
+        font-size: 20px;
+        margin: 0 0 20px 0;
+        color: var(--primary-color);
+        font-weight: 600;
+    }
+    
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+    }
+    
+    .form-group.full-width {
+        grid-column: 1 / -1;
+    }
+    
+    .form-actions {
+        margin-top: 30px;
+        display: flex;
+        justify-content: flex-end;
+        gap: 15px;
+    }
+    
+    .btn-submit {
+        background-color: var(--primary-color);
+        color: white;
+        padding: 12px 25px;
+        border-radius: 8px;
+        font-weight: 500;
+        font-size: 16px;
+        border: none;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+    
+    .btn-submit:hover {
+        background-color: #b3211c;
+    }
+    
+    .btn-cancel {
+        background-color: #f5f5f5;
+        color: #333;
+        padding: 12px 25px;
+        border-radius: 8px;
+        font-weight: 500;
+        font-size: 16px;
+        border: 1px solid #ddd;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+    
+    .btn-cancel:hover {
+        background-color: #eee;
+    }
+    
+    .form-helper-text {
+        display: block;
+        margin-top: 5px;
+        color: #666;
+        font-size: 14px;
+    }
+    
+    @media (max-width: 768px) {
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .form-actions {
+            flex-direction: column;
+        }
+        
+        .btn-submit, .btn-cancel {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="property-form-container">
+    <div class="form-header">
+        <h1 class="form-title">Add New Property</h1>
+        <p class="form-subtitle">Fill in the property details below to list your property on our platform</p>
+    </div>
+    
+    <div class="property-form-card">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <div class="form-section">
+                <h2 class="form-section-title">Basic Information</h2>
+                
+                <div class="form-grid">
+                    <div class="form-group full-width">
+                        <label for="id_title" class="form-label">Title:</label>
+                        <input type="text" name="title" id="id_title" class="form-control" placeholder="E.g., Luxury Villa with Mountain View" required>
+                        {% if form.title.errors %}
+                            <ul class="errorlist">
+                                {% for error in form.title.errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                        <span class="form-helper-text">Choose a compelling title that highlights key features of your property</span>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="id_property_type" class="form-label">Property Type:</label>
+                        <select name="property_type" id="id_property_type" class="form-control" required>
+                            <option value="">Select property type</option>
+                            {% for value, label in property_types %}
+                                <option value="{{ value }}">{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                        {% if form.property_type.errors %}
+                            <ul class="errorlist">
+                                {% for error in form.property_type.errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="id_purpose" class="form-label">Purpose:</label>
+                        <select name="purpose" id="id_purpose" class="form-control" required>
+                            <option value="">Select purpose</option>
+                            {% for value, label in property_purposes %}
+                                <option value="{{ value }}">{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                        {% if form.purpose.errors %}
+                            <ul class="errorlist">
+                                {% for error in form.purpose.errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="id_price" class="form-label">Price (NPR):</label>
+                        <input type="number" name="price" id="id_price" class="form-control" step="0.01" min="0" placeholder="Enter property price" required>
+                        {% if form.price.errors %}
+                            <ul class="errorlist">
+                                {% for error in form.price.errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="id_area_size" class="form-label">Area Size (sq. ft):</label>
+                        <input type="number" name="area_size" id="id_area_size" class="form-control" step="0.01" min="0" placeholder="Enter property area" required>
+                        {% if form.area_size.errors %}
+                            <ul class="errorlist">
+                                {% for error in form.area_size.errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-section" style="background-color: #f9f9f9;">
+                <h2 class="form-section-title">Property Details</h2>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="id_bedrooms" class="form-label">Bedrooms:</label>
+                        <input type="number" name="bedrooms" id="id_bedrooms" class="form-control" min="0" placeholder="Number of bedrooms" required>
+                        {% if form.bedrooms.errors %}
+                            <ul class="errorlist">
+                                {% for error in form.bedrooms.errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="id_bathrooms" class="form-label">Bathrooms:</label>
+                        <input type="number" name="bathrooms" id="id_bathrooms" class="form-control" min="0" placeholder="Number of bathrooms" required>
+                        {% if form.bathrooms.errors %}
+                            <ul class="errorlist">
+                                {% for error in form.bathrooms.errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="id_city" class="form-label">City:</label>
+                        <select name="city" id="id_city" class="form-control" required>
+                            <option value="">Select a city</option>
+                            <option value="kathmandu">Kathmandu</option>
+                            <option value="pokhara">Pokhara</option>
+                            <option value="lalitpur">Lalitpur</option>
+                            <option value="bhaktapur">Bhaktapur</option>
+                        </select>
+                        {% if form.city.errors %}
+                            <ul class="errorlist">
+                                {% for error in form.city.errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group full-width">
+                        <label for="id_address" class="form-label">Address:</label>
+                        <textarea name="address" id="id_address" class="form-control" rows="3" placeholder="Enter complete property address" required></textarea>
+                        {% if form.address.errors %}
+                            <ul class="errorlist">
+                                {% for error in form.address.errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group full-width">
+                        <label for="id_description" class="form-label">Description:</label>
+                        <textarea name="description" id="id_description" class="form-control" rows="6" placeholder="Provide a detailed description of your property..." required></textarea>
+                        {% if form.description.errors %}
+                            <ul class="errorlist">
+                                {% for error in form.description.errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                        <span class="form-helper-text">Include details like features, neighborhood information, amenities, etc.</span>
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <a href="{% url 'manage_properties' %}" class="btn-cancel">Cancel</a>
+                    <button type="submit" class="btn-submit">Save Property</button>
+                </div>
+            </div>
+        </form>
+    </div>
+    
+    <div class="property-form-card" id="imageSection" style="display: none; margin-top: 30px;">
+        <div class="form-section">
+            <h2 class="form-section-title">Add Property Images</h2>
+            <p>Please upload images for your property. You'll be redirected to this section after saving your property details.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
