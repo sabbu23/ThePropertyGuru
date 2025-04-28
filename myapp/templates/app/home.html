@@ -1,20 +1,759 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Home</title>
-</head>
-<body>
-    <h1>Welcome to The Property Guru</h1>
-    {% if user.is_authenticated %}
-        <p>Hello, {{ user.username }}!</p>
-        <form action="{% url 'logout' %}" method="post">
-            {% csrf_token %}
-            <button type="submit">Logout</button>
-        </form>
-    {% else %}
-        <p>Please <a href="{% url 'login' %}">login</a> to continue.</p>
-    {% endif %}
+{% extends 'app/base.html' %}
 
-</body>
-</html>
+{% block title %}Home - The Property Guru{% endblock %}
+{% load static %}
+{% block extra_css %}
+<style>
+      .hero-section-container {
+        max-width: 100%;
+        padding: 0;
+        margin: 0;
+        overflow: hidden;
+    }
+    .hero-section {
+        background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('{% static "images/hero-home.jpg" %}');
+        background-size: cover;
+        background-position: center;
+        width: 100%;
+        height: 70vh; 
+        min-height: 600px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        margin-bottom: 60px;
+    }
+    
+    .hero-content {
+        width: 100%;
+        max-width: 1200px;
+        padding: 0 20px;
+        z-index: 2;
+        text-align: left; 
+    }
+
+    .hero-title {
+        font-size: 56px;
+        font-weight: 700;
+        margin-bottom: 20px;
+        color: white;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        line-height: 1.2;
+    }
+
+    .hero-subtitle {
+        font-size: 22px;
+        margin-bottom: 35px;
+        max-width: 700px;
+        line-height: 1.6;
+        color: white;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+    }
+
+    .search-container {
+        max-width: 800px;
+        width: 100%;
+        position: relative;
+        margin-top: 20px;
+    }
+
+    .search-bar {
+        display: flex;
+        gap: 10px;
+        width: 100%;
+        position: relative;
+    }
+
+    .search-input {
+        flex: 1;
+        padding: 20px 25px;
+        border-radius: 8px;
+        border: none;
+        font-size: 18px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+    
+    .search-btn {
+        border-radius: 8px;
+        padding: 0 30px;
+        font-size: 18px;
+        background-color: var(--primary-color);
+        color: white;
+        border: none;
+        cursor: pointer;
+        font-weight: 600;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .search-btn:hover {
+        background-color: #b3211c;
+    }
+    
+    /* Section styles */
+    .section-title {
+        font-size: 36px;
+        margin-bottom: 20px;
+        text-align: center;
+        font-weight: 700;
+        color: #333;
+        position: relative;
+        padding-bottom: 15px;
+    }
+    
+    .section-title:after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 80px;
+        height: 3px;
+        background-color: var(--primary-color);
+    }
+
+    .section-subtitle {
+        font-size: 18px;
+        color: #666;
+        text-align: center;
+        margin-bottom: 40px;
+        max-width: 800px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    
+    /* Media queries to maintain responsiveness */
+    @media (max-width: 992px) {
+        .hero-section {
+            min-height: 500px;
+        }
+        
+        .hero-title {
+            font-size: 46px;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .hero-section {
+            min-height: 450px;
+            text-align: center;
+        }
+        
+        .hero-content {
+            text-align: center;
+        }
+        
+        .hero-title {
+            font-size: 36px;
+        }
+        
+        .hero-subtitle {
+            font-size: 18px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .search-bar {
+            flex-direction: column;
+        }
+        
+        .search-container {
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .search-btn {
+            width: 100%;
+            margin-top: 10px;
+        }
+    }
+    /* Section styles */
+    .section-title {
+        font-size: 36px;
+        margin-bottom: 20px;
+        text-align: center;
+        font-weight: 700;
+        color: #333;
+        position: relative;
+        padding-bottom: 15px;
+    }
+    
+    .section-title:after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 80px;
+        height: 3px;
+        background-color: var(--primary-color);
+    }
+
+    .section-subtitle {
+        font-size: 18px;
+        color: #666;
+        text-align: center;
+        margin-bottom: 40px;
+        max-width: 800px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    
+    /* Features section */
+    .features {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 30px;
+        margin-bottom: 60px;
+    }
+
+    .feature {
+        background-color: white;
+        border-radius: 8px;
+        padding: 40px 30px;
+        text-align: center;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        transition: transform 0.3s, box-shadow 0.3s;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        border-top: 4px solid transparent;
+    }
+
+    .feature:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+        border-top: 4px solid var(--primary-color);
+    }
+
+    .feature-icon {
+        font-size: 40px;
+        margin-bottom: 25px;
+        color: var(--primary-color);
+        background-color: rgba(200, 48, 42, 0.1);
+        width: 100px;
+        height: 100px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        margin: 0 auto 25px;
+    }
+
+    .feature-title {
+        font-size: 24px;
+        margin-bottom: 15px;
+        color: #333;
+        font-weight: 600;
+    }
+
+    .feature-description {
+        color: #666;
+        flex-grow: 1;
+        margin-bottom: 25px;
+        line-height: 1.6;
+        font-size: 16px;
+    }
+
+    .action-button {
+        margin-top: auto;
+    }
+    
+    /* Verification banner styles */
+    .seller-verification-banner {
+        margin-bottom: 30px;
+        padding: 20px;
+        border-radius: 8px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .banner-pending {
+        background-color: #fff8e1;
+        border-left: 4px solid #ffb74d;
+    }
+
+    .banner-rejected {
+        background-color: #ffebee;
+        border-left: 4px solid #e57373;
+    }
+
+    .banner-not-submitted {
+        background-color: #e3f2fd;
+        border-left: 4px solid #64b5f6;
+    }
+
+    .banner-text {
+        margin: 0;
+        font-size: 16px;
+    }
+
+    .banner-action {
+        background-color: #2196f3;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 4px;
+        text-decoration: none;
+        font-size: 14px;
+        transition: background-color 0.3s;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 500;
+    }
+    
+    .banner-action:hover {
+        background-color: #1976d2;
+        color: white;
+        text-decoration: none;
+    }
+
+    .rejection-reason {
+        margin-top: 15px;
+        padding: 15px;
+        background-color: #f9f9f9;
+        border-radius: 4px;
+        font-style: italic;
+        color: #666;
+        border-left: 3px solid #ff8f00;
+    }
+    
+    /* Popular properties section */
+    .property-section {
+        margin-bottom: 60px;
+    }
+    
+    .property-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 30px;
+    }
+    
+    .view-count {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        background-color: rgba(0, 0, 0, 0.7);
+        color: white;
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        z-index: 2;
+    }
+    
+    .view-all-btn {
+        display: block;
+        width: fit-content;
+        margin: 30px auto 0;
+        padding: 12px 30px;
+        background-color: var(--primary-color);
+        color: white;
+        border-radius: 30px;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        box-shadow: 0 4px 10px rgba(200, 48, 42, 0.2);
+    }
+    
+    .view-all-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 15px rgba(200, 48, 42, 0.3);
+        color: white;
+        text-decoration: none;
+    }
+
+    /* Property card styles */
+    .property-card {
+        background-color: white;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        position: relative;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        height: 100%;
+    }
+    
+    .property-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+    }
+    
+    .property-image {
+        height: 220px;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .property-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+    }
+    
+    .property-card:hover .property-image img {
+        transform: scale(1.05);
+    }
+    
+    .property-price {
+        position: absolute;
+        bottom: 15px;
+        right: 15px;
+        background-color: rgba(0, 0, 0, 0.7);
+        color: white;
+        padding: 6px 12px;
+        border-radius: 4px;
+        font-weight: 600;
+        z-index: 2;
+    }
+    
+    .property-status-badge {
+        position: absolute;
+        top: 15px;
+        left: 15px;
+        padding: 8px 12px;
+        border-radius: 5px;
+        font-weight: 500;
+        z-index: 10;
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    
+    .status-available {
+        background-color: #4CAF50;
+        color: white;
+    }
+    
+    .status-sold {
+        background-color: #F44336;
+        color: white;
+    }
+    
+    .property-details {
+        padding: 15px;
+    }
+    
+    .property-title {
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 8px;
+        color: var(--dark-color);
+    }
+    
+    .property-location {
+        color: #666;
+        font-size: 14px;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+    
+    .property-features {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 15px;
+        color: #666;
+        font-size: 14px;
+    }
+    
+    .property-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 15px;
+    }
+    
+    .favorite-btn {
+        background: none;
+        border: none;
+        color: #666;
+        cursor: pointer;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        transition: color 0.3s ease;
+    }
+    
+    .favorite-btn:hover {
+        color: var(--primary-color);
+    }
+    
+    .favorite-btn.active {
+        color: var(--primary-color);
+    }
+
+    /* Animation classes for simple fade-in */
+    .fade-in {
+        opacity: 0;
+        animation: fadeIn 1s ease-in forwards;
+    }
+    
+    .delay-1 {
+        animation-delay: 0.1s;
+    }
+    
+    .delay-2 {
+        animation-delay: 0.2s;
+    }
+    
+    .delay-3 {
+        animation-delay: 0.3s;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 992px) {
+        .features {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .hero-title {
+            font-size: 40px;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .hero-title {
+            font-size: 32px;
+        }
+        
+        .hero-subtitle {
+            font-size: 18px;
+        }
+        
+        .features {
+            grid-template-columns: 1fr;
+        }
+        
+        .search-bar {
+            flex-direction: column;
+        }
+        
+        .search-bar .btn {
+            width: 100%;
+            justify-content: center;
+        }
+        
+        .seller-verification-banner {
+            flex-direction: column;
+            text-align: center;
+            gap: 15px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+{% if user.is_authenticated and user.profile.role == 'seller' and not user.profile.is_verified %}
+    {% if verification_status == 'pending' %}
+        <div class="seller-verification-banner banner-pending">
+            <p class="banner-text"><i class="fas fa-clock mr-2"></i> Your seller account is pending verification by an admin. You'll be able to list properties once verified.</p>
+        </div>
+    {% elif verification_status == 'rejected' %}
+        <div class="seller-verification-banner banner-rejected">
+            <div>
+                <p class="banner-text"><i class="fas fa-exclamation-circle mr-2"></i> Your seller verification was rejected.</p>
+                {% if rejection_message %}
+                    <div class="rejection-reason">
+                        <strong>Reason:</strong> {{ rejection_message }}
+                    </div>
+                {% endif %}
+            </div>
+            <a href="{% url 'seller_verification' %}" class="banner-action">Resubmit Verification</a>
+        </div>
+    {% elif verification_status == 'not_submitted' %}
+        <div class="seller-verification-banner banner-not-submitted">
+            <p class="banner-text"><i class="fas fa-info-circle mr-2"></i> You need to complete your seller verification before you can list properties.</p>
+            <a href="{% url 'seller_verification' %}" class="banner-action">Complete Verification</a>
+        </div>
+    {% endif %}
+{% endif %}
+
+<!-- Hero Section -->
+<div class="hero-section-container">
+    <section class="hero-section">
+        <div class="hero-content">
+            <h1 class="hero-title">Find Your Dream Property in Nepal</h1>
+            <p class="hero-subtitle">Whether you're looking to buy, sell, or rent, The Property Guru is your trusted partner in navigating Nepal's real estate market.</p>
+
+            <div class="search-container">
+                <form action="{% url 'property_list' %}" method="get" class="search-bar">
+                    <input type="text" name="search" placeholder="Enter city, area, or property type..." class="search-input" value="{{ request.GET.search|default:'' }}">
+                    <button type="submit" class="search-btn">
+                        <i class="fas fa-search mr-2"></i> SEARCH
+                    </button>
+                </form>
+            </div>
+        </div>
+    </section>
+</div>
+
+<section class="property-section">
+    <h2 class="section-title">Popular Properties</h2>
+    <p class="section-subtitle">Discover our most viewed properties across Nepal</p>
+
+    <div class="property-grid">
+        {% for property in popular_properties %}
+            <div class="property-card fade-in {% if forloop.counter == 1 %}delay-1{% elif forloop.counter == 2 %}delay-2{% elif forloop.counter == 3 %}delay-3{% endif %}">
+                <div class="property-image">
+                    {% if property.get_primary_image %}
+                        <img src="{{ property.get_primary_image.image.url }}" alt="{{ property.title }}">
+                    {% else %}
+                        <div style="width: 100%; height: 100%; background-color: #eee; display: flex; align-items: center; justify-content: center;">
+                            <span style="color: #999;"><i class="fas fa-home fa-2x"></i></span>
+                        </div>
+                    {% endif %}
+                    <div class="property-price">NPR {{ property.price|floatformat:0 }}{% if property.purpose == 'rent' %}/month{% endif %}</div>
+                    <div class="property-status-badge status-{{ property.status }}">
+                        {{ property.get_status_display }}
+                    </div>
+                    <div class="view-count">
+                        <i class="fas fa-eye"></i> {{ property.views.count }}
+                    </div>
+                </div>
+                <div class="property-details">
+                    <h3 class="property-title">{{ property.title }}</h3>
+                    <div class="property-location">
+                        <i class="fas fa-map-marker-alt"></i> {{ property.address }}, {{ property.city }}
+                    </div>
+                    <div class="property-features">
+                        <span><i class="fas fa-ruler-combined"></i> {{ property.area_size|floatformat:0 }} sq ft</span>
+                        <span><i class="fas fa-bed"></i> {{ property.bedrooms }} bed</span>
+                        <span><i class="fas fa-bath"></i> {{ property.bathrooms }} bath</span>
+                    </div>
+                    <div class="property-actions">
+                        <a href="{% url 'property_detail' property.id %}" class="btn btn-primary" style="font-size: 14px; padding: 8px 15px;">View Details</a>
+                        {% if user.is_authenticated %}
+                            <form method="post" action="{% url 'toggle_favorite' property.id %}">
+                                {% csrf_token %}
+                                <button type="submit" class="favorite-btn {% if property.id in favorite_ids %}active{% endif %}">
+                                    <i class="{% if property.id in favorite_ids %}fas{% else %}far{% endif %} fa-heart"></i>
+                                    <span>{{ property.favorited_by.count }}</span>
+                                </button>
+                            </form>
+                        {% else %}
+                            <div class="favorite-btn">
+                                <i class="far fa-heart"></i>
+                                <span>{{ property.favorited_by.count }}</span>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <div style="grid-column: 1 / -1; text-align: center; padding: 50px 0;">
+                <i class="fas fa-home fa-3x" style="color: #ddd; margin-bottom: 20px;"></i>
+                <p style="color: #666; font-size: 18px;">No properties available at the moment. Check back soon!</p>
+            </div>
+        {% endfor %}
+    </div>
+
+    <a href="{% url 'property_list' %}" class="view-all-btn">View All Properties</a>
+</section>
+
+{% if user.is_authenticated and user.profile.role == 'seller' and user.profile.is_verified %}
+<section class="features">
+    <div class="feature fade-in delay-1">
+        <div class="feature-icon">
+            <i class="fas fa-home"></i>
+        </div>
+        <h3 class="feature-title">Buy Properties</h3>
+        <p class="feature-description">Find your dream home from our extensive listings all across Nepal. Filter by location, price, and property features.</p>
+        <a href="{% url 'buy_properties' %}" class="btn btn-primary action-button">Browse Properties</a>
+    </div>
+
+    <div class="feature fade-in delay-2">
+        <div class="feature-icon">
+            <i class="fas fa-key"></i>
+        </div>
+        <h3 class="feature-title">Rent Properties</h3>
+        <p class="feature-description">Browse our collection of rental properties to find the perfect place that suits your needs and budget.</p>
+        <a href="{% url 'rent_properties' %}" class="btn btn-primary action-button">Browse Rentals</a>
+    </div>
+
+    <div class="feature fade-in delay-3">
+        <div class="feature-icon">
+            <i class="fas fa-plus-circle"></i>
+        </div>
+        <h3 class="feature-title">List Your Property</h3>
+        <p class="feature-description">Are you looking to sell or rent out your property? List it on our platform and reach thousands of potential buyers or tenants.</p>
+        <a href="{% url 'add_property' %}" class="btn btn-primary action-button">Add Property</a>
+    </div>
+</section>
+{% elif user.is_authenticated and user.profile.role == 'buyer' %}
+<section class="features">
+    <div class="feature fade-in delay-1">
+        <div class="feature-icon">
+            <i class="fas fa-home"></i>
+        </div>
+        <h3 class="feature-title">Buy Properties</h3>
+        <p class="feature-description">Find your dream home from our extensive listings all across Nepal. Filter by location, price, and property features.</p>
+        <a href="{% url 'buy_properties' %}" class="btn btn-primary action-button">Browse Properties</a>
+    </div>
+
+    <div class="feature fade-in delay-2">
+        <div class="feature-icon">
+            <i class="fas fa-key"></i>
+        </div>
+        <h3 class="feature-title">Rent Properties</h3>
+        <p class="feature-description">Browse our collection of rental properties to find the perfect place that suits your needs and budget.</p>
+        <a href="{% url 'rent_properties' %}" class="btn btn-primary action-button">Browse Rentals</a>
+    </div>
+
+    <div class="feature fade-in delay-3">
+        <div class="feature-icon">
+            <i class="fas fa-heart"></i>
+        </div>
+        <h3 class="feature-title">My Favorites</h3>
+        <p class="feature-description">View and manage your saved properties. Keep track of the properties you're interested in.</p>
+        <a href="{% url 'my_favorites' %}" class="btn btn-primary action-button">View Favorites</a>
+    </div>
+</section>
+{% else %}
+<section class="features">
+    <div class="feature fade-in delay-1">
+        <div class="feature-icon">
+            <i class="fas fa-home"></i>
+        </div>
+        <h3 class="feature-title">Buy Properties</h3>
+        <p class="feature-description">Find your dream home from our extensive listings all across Nepal. Filter by location, price, and property features.</p>
+        <a href="{% url 'buy_properties' %}" class="btn btn-primary action-button">Browse Properties</a>
+    </div>
+
+    <div class="feature fade-in delay-2">
+        <div class="feature-icon">
+            <i class="fas fa-key"></i>
+        </div>
+        <h3 class="feature-title">Rent Properties</h3>
+        <p class="feature-description">Browse our collection of rental properties to find the perfect place that suits your needs and budget.</p>
+        <a href="{% url 'rent_properties' %}" class="btn btn-primary action-button">Browse Rentals</a>
+    </div>
+
+    <div class="feature fade-in delay-3">
+        <div class="feature-icon">
+            <i class="fas fa-user-plus"></i>
+        </div>
+        <h3 class="feature-title">Create Account</h3>
+        <p class="feature-description">Sign up for an account to save your favorite properties and get personalized recommendations.</p>
+        {% if not user.is_authenticated %}
+            <a href="{% url 'signup' %}" class="btn btn-primary action-button">Sign Up Now</a>
+        {% endif %}
+    </div>
+</section>
+{% endif %}
+{% endblock %}

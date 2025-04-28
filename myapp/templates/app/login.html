@@ -100,11 +100,52 @@
         .signup-link a:hover {
             text-decoration: underline;
         }
+
+        .messages {
+            margin-bottom: 20px;
+        }
+
+        .message {
+            padding: 10px 15px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+
+        .message.error {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+
+        .message.success {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .message.info {
+            background-color: #e3f2fd;
+            color: #1565c0;
+        }
+
+        .message.warning {
+            background-color: #fff8e1;
+            color: #ff8f00;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Login</h1>
+
+        {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+            <div class="message {{ message.tags }}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
         <div class="form-container">
             <form method="post">
                 {% csrf_token %}
@@ -139,7 +180,7 @@
 
                 // Check initial state
                 if (input.value.trim() !== '') {
-                    this.classList.add('filled');
+                    input.classList.add('filled');
                 }
             });
         });
